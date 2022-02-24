@@ -10,16 +10,24 @@ using UnityEngine.AI;
 public class TapToPlaceObject : MonoBehaviour
 {
     public GameObject v_GameobjectToInstantiate;
+    MainController main_controller;
+    public GameObject PanelScan;
 
     private GameObject v_SpawnedObject;
     private ARPlaneManager planeManager;
     private ARRaycastManager aRRaycastManager;
     private Vector2 v_TouchPosition;
+    [SerializeField] Camera arCamera;
 
     static List<ARRaycastHit> hits = new List<ARRaycastHit>();
     bool isPlaced = false;
     bool startScan = false;
-    
+
+    private void Start()
+    {
+        main_controller = (MainController)FindObjectOfType(typeof(MainController));
+    }
+
     private void Awake()
     {
         aRRaycastManager = GetComponent<ARRaycastManager>();
@@ -35,6 +43,35 @@ public class TapToPlaceObject : MonoBehaviour
             if (isPlaced == false)
             {
                 Place();
+            }
+        }
+
+        if (Input.touchCount > 0)
+        {
+            Touch touch = Input.GetTouch(0);
+
+            v_TouchPosition = touch.position;
+
+            if (touch.phase == TouchPhase.Began)
+            {
+                Ray ray = arCamera.ScreenPointToRay(touch.position);
+                RaycastHit hitObject;
+                if (Physics.Raycast(ray, out hitObject))
+                {
+                    GameObject obj = GameObject.FindGameObjectWithTag("SpawnedObject");
+                    GameObject obj_butt = GameObject.FindGameObjectWithTag("3DButton");
+
+                    if (obj != null)
+                    {
+                        Debug.Log("Touched");
+                        main_controller.SpawnButton();
+                    }
+                    else if (obj_butt != null)
+                    {
+                        Debug.Log("PREMUTO BOTTONE");
+                        main_controller.ResetWrapper();
+                    }
+                }
             }
         }
     }
@@ -73,7 +110,14 @@ public class TapToPlaceObject : MonoBehaviour
             v_GameobjectToInstantiate.transform.rotation = hitPos.rotation;
 
             DisablePlanes();
+            main_controller.Scanned();
+            PanelScan.SetActive(false);
         }
+    }
+
+    public void PlaceSelectedObject()
+    {
+        v_GameobjectToInstantiate.SetActive(true);
     }
 
     public void PlaceTest()

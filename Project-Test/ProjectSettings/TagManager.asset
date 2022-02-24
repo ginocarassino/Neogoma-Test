@@ -3,7 +3,11 @@
 --- !u!78 &1
 TagManager:
   serializedVersion: 2
-  tags: []
+  tags:
+  - Plane
+  - SpawnedObject
+  - 3DButton
+  - ARCamera
   layers:
   - Default
   - TransparentFX
